@@ -1,24 +1,26 @@
 import Select from 'antd/lib/select'
 import Slider from 'antd/lib/slider'
+import Switch from 'antd/lib/switch'
+// import {Select,Slider,Switch} from 'antd'
 import React from 'react'
-import { useSelector, useDispatch } from 'react-redux'
+// import useDispatch from 'react-redux/lib/hooks/useDispatch'
+// import useSelector from 'react-redux/lib/hooks/useSelector'
+import { useDispatch, useSelector } from 'react-redux'
 
-import { setFilterStrictness } from '../../redux/actions/settings'
-import {
-  setTrainedModel,
-  setFilterEffect
-} from '../../redux/actions/settings/index'
+import { setFilterStrictness, toggleEnabled } from '../../redux/actions/settings'
+import { setFilterEffect, setTrainedModel } from '../../redux/actions/settings/index'
 import { RootState } from '../../redux/reducers'
 import { SettingsState } from '../../redux/reducers/settings'
 import { StatisticsState } from '../../redux/reducers/statistics'
 
-import { Container, Stats, DropdownRow } from './styles'
+import { Container, DropdownRow, Stats } from './styles'
 
 const { Option } = Select
 
-export const Production: React.FC = () => {
+export const Production: React.FC = (prop) => {
   const dispatch = useDispatch()
   const {
+    enabled,
     filterStrictness,
     trainedModel,
     filterEffect
@@ -31,7 +33,11 @@ export const Production: React.FC = () => {
         <span>Total blocked: {totalBlocked}</span>
       </Stats>
 
-      <div>Filter Strictness</div>
+      <Switch checked={enabled}
+        onChange={() => dispatch(toggleEnabled())} />
+
+      <div>{enabled ? 'This extension is Enabled' : 'This extension is not enabled'}</div>
+
       <Slider
         min={1}
         max={100}

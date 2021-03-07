@@ -18,6 +18,7 @@ export class Model implements IModel {
   private readonly FILTER_LIST: Set<string>
   private readonly firstFilterPercentages: Map<string, number>
   private readonly secondFilterPercentages: Map<string, number>
+  private readonly thirdFilterPercentages: Map<string, number>
 
   constructor (model: NSFWJS, logger: ILogger, settings: ModelSettings) {
     this.model = model
@@ -29,6 +30,7 @@ export class Model implements IModel {
 
     this.firstFilterPercentages = new Map()
     this.secondFilterPercentages = new Map()
+    this.thirdFilterPercentages = new Map()
 
     this.setSettings(settings)
   }
@@ -37,6 +39,7 @@ export class Model implements IModel {
     const { filterStrictness } = settings
     this.firstFilterPercentages.clear()
     this.secondFilterPercentages.clear()
+    this.thirdFilterPercentages.clear()
 
     for (const className of this.FILTER_LIST.values()) {
       this.firstFilterPercentages.set(
@@ -55,7 +58,18 @@ export class Model implements IModel {
         Model.handleFilterStrictness({
           value: filterStrictness,
           maxValue: 50,
-          minValue: className === 'Porn' ? 15 : 25
+          minValue: className === 'Porn' ? 5 : 25
+        })
+      )
+    }
+
+    for (const className of this.FILTER_LIST.values()) {
+      this.thirdFilterPercentages.set(
+        className,
+        Model.handleFilterStrictness({
+          value: filterStrictness,
+          maxValue: 20,
+          minValue: className === 'Porn' ? 5 : 15
         })
       )
     }
@@ -64,28 +78,31 @@ export class Model implements IModel {
   public async predictImage (image: HTMLImageElement, url: string): Promise<boolean> {
     const start = new Date().getTime()
 
-    const prediction = await this.model.classify(image, 2)
-    const { result, className, probability } = this.handlePrediction(prediction)
+    const prediction = await this.model.classify(image, 3)
+    const { result, className, probability } = this.handlePrediction(prediction, url)
 
     const end = new Date().getTime()
     this.logger.log(`IMG prediction (${end - start} ms) is ${className} ${probability} for ${url}`)
+    // console.log(end - start,url,result,className, probability,'yaskur')
 
     return result
   }
 
-  private handlePrediction (prediction: predictionType[]): { result: boolean, className: string, probability: number } {
+  private handlePrediction (prediction: predictionType[], url: string): { result: boolean, className: string, probability: number } {
     const [{ className: cn1, probability: pb1 }, { className: cn2, probability: pb2 }] = prediction
 
     const result1 = this.FILTER_LIST.has(cn1) && pb1 > (this.firstFilterPercentages.get(cn1) as number)
+    const result2 = this.FILTER_LIST.has(cn2) && pb2 > (this.secondFilterPercentages.get(cn2) as number)
+    // console.log(url,result1,result2,prediction,'yaskur');
+
     if (result1) return ({ result: result1, className: cn1, probability: pb1 })
 
-    const result2 = this.FILTER_LIST.has(cn2) && pb2 > (this.secondFilterPercentages.get(cn2) as number)
     if (result2) return ({ result: result2, className: cn2, probability: pb2 })
 
     return ({ result: false, className: cn1, probability: pb1 })
   }
 
-  public static handleFilterStrictness ({ value, minValue, maxValue }: {value: number, minValue: number, maxValue: number}): number {
+  public static handleFilterStrictness ({ value, minValue, maxValue }: { value: number, minValue: number, maxValue: number }): number {
     const MIN = minValue
     const MAX = maxValue
 

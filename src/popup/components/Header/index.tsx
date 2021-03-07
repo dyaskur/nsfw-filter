@@ -1,5 +1,8 @@
 import BulbOutlined from '@ant-design/icons/lib/icons/BulbOutlined'
 import React from 'react'
+
+// import useDispatch from 'react-redux/lib/hooks/useDispatch'
+// import useSelector from 'react-redux/lib/hooks/useSelector'
 import { useDispatch } from 'react-redux'
 
 import { TOGGLE_THEME } from '../../redux/actions/appearance'

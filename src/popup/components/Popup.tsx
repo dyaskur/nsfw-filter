@@ -5,7 +5,7 @@ import { Header } from './Header'
 import { Production } from './Production'
 import { Container } from './styles'
 
-export const Popup: React.FC = () => (
+export const Popup: React.FC = (prop) => (
   <Container>
     <Header />
     <Production/>

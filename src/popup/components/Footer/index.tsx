@@ -1,6 +1,9 @@
 import BugOutlined from '@ant-design/icons/lib/icons/BugOutlined'
 import { SettingsState } from 'popup/redux/reducers/settings'
 import React, { useEffect, useState } from 'react'
+
+// import useDispatch from 'react-redux/lib/hooks/useDispatch'
+// import useSelector from 'react-redux/lib/hooks/useSelector'
 import { useSelector, useDispatch } from 'react-redux'
 
 import {
