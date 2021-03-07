@@ -7,7 +7,7 @@ type imageFilterSettingsType = {
 }
 
 export type IImageFilter = {
-  analyzeImage: (image: HTMLImageElement, srcAttribute: boolean, date: Date) => void
+  analyzeImage: (image: HTMLImageElement, srcAttribute: boolean) => void
   analyzeBgImage: (image: HTMLElement, url: string) => void
   setSettings: (settings: imageFilterSettingsType) => void
 }
@@ -27,27 +27,26 @@ export class ImageFilter extends Filter implements IImageFilter {
     this.settings = settings
   }
 
-  public analyzeImage (image: HTMLImageElement, srcAttribute: boolean = false, date: Date): void {
+  public analyzeImage (image: HTMLImageElement, srcAttribute: boolean = false): void {
     if (
       image.src.length > 0 &&
       ((image.width > this.MIN_IMAGE_SIZE && image.height > this.MIN_IMAGE_SIZE) || image.height === 0 || image.width === 0)
     ) {
       if (srcAttribute) {
-        this._analyzeImage(image, date)
+        this._analyzeImage(image)
       } else if (image.dataset.nsfwFilterStatus === undefined) {
-        this._analyzeImage(image, date)
+        this._analyzeImage(image)
       }
     }
   }
 
-  private _analyzeImage (image: HTMLImageElement, date: Date): void {
+  private _analyzeImage (image: HTMLImageElement): void {
     this.hideImage(image)
 
     const request = new PredictionRequest(image.src)
 
     this.requestToAnalyzeImage(request)
       .then(({ result, url }) => {
-        // console.log('requestend',result,url,(new Date(Date.now()).getTime()-date.getTime())/1000,date,new Date(Date.now()))
 
         if (result) {
           if (this.settings.filterEffect === 'blur') {

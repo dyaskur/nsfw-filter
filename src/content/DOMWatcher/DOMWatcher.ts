@@ -42,24 +42,24 @@ export class DOMWatcher implements IDOMWatcher {
   private findAndCheckAllImages (element: Element): void {
     const images = element.getElementsByTagName('img')
     for (let i = 0; i < images.length; i++) {
-      this.imageFilter.analyzeImage(images[i], false, new Date(Date.now()))
+      this.imageFilter.analyzeImage(images[i], false)
     }
 
-    // const elements = element.querySelectorAll<HTMLElement>('[style]')
-    // for (let i = 0; i < elements.length; i++) {
-    //   const bgImage = elements[i].style.backgroundImage
-    //   if (bgImage !== undefined) {
-    //     const bgImageUrl = bgImage.split('"')[1]
-    //     if (bgImageUrl !== undefined && bgImageUrl !== 'ia' && elements[i].dataset.nsfwFilterStatus === undefined) {
-    //       this.imageFilter.analyzeBgImage(elements[i], bgImageUrl)
-    //     }
-    //   }
-    // }
+    const elements = element.querySelectorAll<HTMLElement>('[style]')
+    for (let i = 0; i < elements.length; i++) {
+      const bgImage = elements[i].style.backgroundImage
+      if (bgImage !== undefined) {
+        const bgImageUrl = bgImage.split('"')[1]
+        if (bgImageUrl !== undefined && bgImageUrl !== 'ia' && elements[i].dataset.nsfwFilterStatus === undefined) {
+          this.imageFilter.analyzeBgImage(elements[i], bgImageUrl)
+        }
+      }
+    }
   }
 
   private checkAttributeMutation (mutation: MutationRecord): void {
     if ((mutation.target as HTMLImageElement).nodeName === 'IMG') {
-      this.imageFilter.analyzeImage(mutation.target as HTMLImageElement, mutation.attributeName === 'src', new Date(Date.now()))
+      this.imageFilter.analyzeImage(mutation.target as HTMLImageElement, mutation.attributeName === 'src')
     }
   }
 
